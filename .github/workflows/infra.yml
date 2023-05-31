@@ -1,0 +1,86 @@
+# This is a basic workflow to help you get started with Actions
+name: DeployToAWS
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch.
+  push:
+    branches: [ main ]
+ 
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    name: workflow_aws
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run a one-line script
+        run: echo Hello, world!
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          echo Add other actions to build,
+          echo test, and deploy your project.
+      - name: Setup Packer
+        uses: hashicorp-contrib/setup-packer@v1.0.0
+      - name: Run packer commands
+        run: |
+          zip -r webapp.zip ./
+          pwd ./webapp
+          packer build .
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}          
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: "us-east-1"
+
+      - name: Print manifest json
+        run: cat manifest.json | jq '.'
+
+      - name: Set AWS Credentials
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} --profile dev
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} --profile dev
+          aws configure set region ${{ secrets.AWS_DEFAULT_REGION }} --profile dev
+
+          aws configure set aws_access_key_id ${{ secrets.PROD_AWS_ACCESS_KEY_ID }} --profile demo
+          aws configure set aws_secret_access_key ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}  --profile demo
+          aws configure set region ${{ secrets.AWS_DEFAULT_REGION }}  --profile demo
+
+      - name: Fetch AMI ID New
+        run:
+          export AMI_ID=$(jq -r '.builds[-1].artifact_id' manifest.json | cut -d ":" -f2);
+          echo "AMI_ID=$AMI_ID" >> $GITHUB_ENV;
+
+      - name: Fetching version no.
+        run:
+          export VERSION_ID=$(aws --profile demo ec2 describe-launch-templates --launch-template-names asg_launch_template | jq -r '.LaunchTemplates[-1].LatestVersionNumber');
+          echo "VERSION_ID=$VERSION_ID" >> $GITHUB_ENV;
+
+      - name: Upgrade version no.
+        run: VERSION_TO_UPDATE=${{ env.VERSION_ID }};
+          VERSION_TO_UPDATE1=$VERSION_TO_UPDATE;
+          export NEW_VERSION=$((VERSION_TO_UPDATE1++));
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV;
+
+      - name: Create Launch Template
+        run:
+          aws --profile demo ec2 create-launch-template-version --launch-template-name asg_launch_template --version-description ${{ env.NEW_VERSION }} --source-version 1 --launch-template-data "ImageId=${{ env.AMI_ID }}" > launch_template.json;
+          cat launch_template.json | jq '.';
+
+      - name: Fetching autoscaling group name
+        run:
+          export AUTOSCALING_GROUP_NAME=$(aws --profile demo autoscaling describe-auto-scaling-groups | jq -r '.AutoScalingGroups[-1].AutoScalingGroupName');
+          echo "AUTOSCALING_GROUP_NAME=$AUTOSCALING_GROUP_NAME" >> $GITHUB_ENV;
+
+      - name: Update Auto Scaling Group with latest version
+        run: aws --profile demo autoscaling update-auto-scaling-group --auto-scaling-group-name ${{ env.AUTOSCALING_GROUP_NAME }} --launch-template LaunchTemplateName=asg_launch_template,Version='$Latest';
+
+      - name: Refresh Instance in Auto Scaling Group
+        run: aws --profile demo autoscaling start-instance-refresh --auto-scaling-group-name ${{ env.AUTOSCALING_GROUP_NAME }}
