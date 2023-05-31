@@ -1,0 +1,14 @@
+profile                   = "demo"
+region                    = "us-east-1"
+cidr_block                = "10.0.0.0/16"
+availability_zone         = ["us-east-1a", "us-east-1b", "us-east-1c"]
+public_subnet_cidr_block  = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+private_subnet_cidr_block = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
+destination_cidr_block    = "0.0.0.0/0"
+cidr_block_security       = "0.0.0.0/0"
+ami_id                    = "ami-0158a14780d242e6f"
+db_name                   = "csye6225"
+username                  = "csye6225"
+password                  = "Password123"
+domain_name               = "prod.jharnadoda.me"
+certificate-arn = "arn:aws:acm:us-east-1:391864453288:certificate/7199d564-d0ee-4904-acc9-6aa3fc4a4423" # prod
