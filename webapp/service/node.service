@@ -1,0 +1,20 @@
+[Unit]
+Description=Webapp Node.js Application
+After=node.service
+
+[Service]
+
+Type=simple
+EnvironmentFile=/home/ec2-user/webapp/.env
+
+Environment=PORT=3000
+Restart=always
+RestartSec=10
+
+SyslogIdentifier=webapp
+User=ec2-user
+ExecStart=/usr/bin/node /home/ec2-user/webapp/server.js
+StandardOutput=file:/home/ec2-user/webapp/app.log
+
+[Install]
+WantedBy=multi-user.target
