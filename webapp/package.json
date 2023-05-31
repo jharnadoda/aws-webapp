@@ -1,0 +1,34 @@
+{
+  "scripts": {
+    "test": "jest  --forceExit"
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "!node_modules/"
+    ]
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1324.0",
+    "axios": "^1.3.2",
+    "basic-auth": "^2.0.1",
+    "bcrypt": "^5.1.0",
+    "chai": "^4.3.7",
+    "chai-http": "^4.3.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-basic-auth": "^1.2.1",
+    "multer": "^1.4.5-lts.1",
+    "multer-s3": "^3.0.1",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.1.0",
+    "node-statsd": "^0.1.1",
+    "sequelize": "^6.28.0",
+    "uuid": "^9.0.0",
+    "winston": "^3.8.2"
+  },
+  "devDependencies": {
+    "jest": "^29.4.1",
+    "supertest": "^6.3.3"
+  }
+}
