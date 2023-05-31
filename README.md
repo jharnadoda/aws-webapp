@@ -30,7 +30,8 @@
 - GET: /v1/product/{product_id}/image/{image_id} --> Get Image Details
 - DELETE: /v1/product/{product_id}/image/{image_id} --> Delete the image
 
-# AWS Resources Created: VPC, AMI, EC2, Subnets, Security Groups, Internet Gateway, Route Table (public and private), RDS Parameter Group, RDS instance, S3 bucket, Route 53, CloudWatch Logs and Metrics, Load Balancer, Auto-Scaling groups.
+# AWS Resources Created: 
+VPC, AMI, EC2, Subnets, Security Groups, Internet Gateway, Route Table (public and private), RDS Parameter Group, RDS instance, S3 bucket, Route 53, CloudWatch Logs and Metrics, Load Balancer, Auto-Scaling groups.
 
 # Webapp
 - Install dependencies `npm install`
@@ -49,7 +50,7 @@
 
 # Additional terraform commands
 
-terraform apply -var-file - to apply a varaibles file
-terraform apply -var = - to apply variables to a file at runtime
-To run the variable file : terraform apply -var-file="terraform.tfvars"
-terraform destroy -var-file="terraform.tfvars" - to delete with the var file that you is created
+- terraform apply -var-file - to apply a varaibles file
+- terraform apply -var = - to apply variables to a file at runtime
+- To run the variable file : terraform apply -var-file="terraform.tfvars"
+- terraform destroy -var-file="terraform.tfvars" - to delete with the var file that you is created
